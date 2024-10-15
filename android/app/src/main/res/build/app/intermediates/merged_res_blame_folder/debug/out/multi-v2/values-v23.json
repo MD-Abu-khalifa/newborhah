@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.brhah.optima.app-mergeDebugResources-43:/values-v23/values-v23.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\YSR\\.gradle\\caches\\transforms-3\\31b13a7468565e10db7aa17c7af20d26\\transformed\\work-runtime-2.7.1\\res\\values-v23\\values-v23.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,121",
+                        "endColumns": "65,62",
+                        "endOffsets": "116,179"
+                    }
+                }
+            ]
+        }
+    ]
+}
