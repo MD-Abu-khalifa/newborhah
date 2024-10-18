@@ -821,170 +821,71 @@ class _ProfileState extends State<Profile> {
       width: DeviceInfo(context).width,
       height: 200,
       decoration: BoxDecorations.buildBoxDecoration_1(),
-      child: GridView(
-        scrollDirection: Axis.horizontal,
-        physics: const PageScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 2.0,
-          crossAxisCount: 2,
-        ),
-        shrinkWrap: true,
-        cacheExtent: 5.0,
+      child: Column(
         children: [
-          if (wallet_system_status.$)
-            Container(
-              child: buildSettingAndAddonsHorizontalMenuItem(
-                  "assets/wallet.png",
-                  AppLocalizations.of(context)!.my_wallet_ucf, () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Wallet();
-                }));
-              }),
-            ),
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/orders.png",
-              AppLocalizations.of(context)!.orders_ucf,
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return OrderList();
-                      }));
-                    }
-                  : () => null),
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/heart.png",
-              AppLocalizations.of(context)!.my_wishlist_ucf,
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Wishlist();
-                      }));
-                    }
-                  : () => null),
-          if (club_point_addon_installed.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/points.png",
-                AppLocalizations.of(context)!.earned_points_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return Clubpoint();
-                        }));
-                      }
-                    : () => null),
-          Container(
-            child: badges.Badge(
-              position: badges.BadgePosition.topEnd(top: 8, end: 20),
-              badgeStyle: badges.BadgeStyle(
-                shape: badges.BadgeShape.circle,
-                badgeColor: MyTheme.accent_color,
-                borderRadius: BorderRadius.circular(10),
-                padding: EdgeInsets.all(5),
-              ),
-              badgeContent: Consumer<UnReadNotificationCounter>(
-                builder: (context, notification, child) {
-                  return Text(
-                    "${notification.unReadNotificationCounter}",
-                    style: TextStyle(fontSize: 10, color: Colors.white),
-                  );
-                },
-              ),
-              child: buildSettingAndAddonsHorizontalMenuItem(
-                  "assets/notification.png",
-                  "Notifications",
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              buildSettingAndAddonsHorizontalMenuItem(
+                  "assets/heart.png",
+                  AppLocalizations.of(context)!.my_wishlist_ucf,
                   is_logged_in.$
                       ? () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return Wishlist();
+                        }));
+                  }
+                      : () => null),
+              badges.Badge(
+                position: badges.BadgePosition.topEnd(top: 8, end: 20),
+                badgeStyle: badges.BadgeStyle(
+                  shape: badges.BadgeShape.circle,
+                  badgeColor: MyTheme.accent_color,
+                  borderRadius: BorderRadius.circular(10),
+                  padding: EdgeInsets.all(5),
+                ),
+                badgeContent: Consumer<UnReadNotificationCounter>(
+                  builder: (context, notification, child) {
+                    return Text(
+                      "${notification.unReadNotificationCounter}",
+                      style: TextStyle(fontSize: 10, color: Colors.white),
+                    );
+                  },
+                ),
+                child: buildSettingAndAddonsHorizontalMenuItem(
+                    "assets/notification.png",
+                    "الأشعارات",
+                    is_logged_in.$
+                        ? () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
                             return NotificationList();
                           })).then((value) {
-                            onPopped(value);
-                          });
-                        }
+                        onPopped(value);
+                      });
+                    }
+                        : () => null),
+              ),
+              buildSettingAndAddonsHorizontalMenuItem(
+                  "assets/orders.png",
+                  AppLocalizations.of(context)!.orders_ucf,
+                  is_logged_in.$
+                      ? () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return OrderList();
+                        }));
+                  }
                       : () => null),
-            ),
+            ],
           ),
-          if (refund_addon_installed.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/refund.png",
-                AppLocalizations.of(context)!.refund_requests_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return RefundRequest();
-                        }));
-                      }
-                    : () => null),
-          if (conversation_system_status.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/messages.png",
-                AppLocalizations.of(context)!.messages_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return MessengerList();
-                        }));
-                      }
-                    : () => null),
-          // if (auction_addon_installed.$)
-          if (false)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/auction.png",
-                AppLocalizations.of(context)!.auction_ucf,
-                is_logged_in.$
-                    ? () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (context) {
-                        //   return MessengerList();
-                        // }));
-                      }
-                    : () => null),
-          if (classified_product_status.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/classified_product.png",
-                AppLocalizations.of(context)!.classified_products,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return MyClassifiedAds();
-                        }));
-                      }
-                    : () => null),
-
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/download.png",
-              AppLocalizations.of(context)!.downloads_ucf,
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return PurchasedDigitalProducts();
-                      }));
-                    }
-                  : () => null),
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/download.png",
-              "Upload file",
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return UploadFile();
-                      }));
-                    }
-                  : () => null),
-          // notification and badge contents
+          // Add other menu items below this Row if needed
         ],
       ),
     );
   }
+
 
   Container buildSettingAndAddonsHorizontalMenuItem(
       String img, String text, Function() onTap) {
