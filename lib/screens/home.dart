@@ -112,7 +112,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         slivers: <Widget>[
           _buildMainContent(context),
           _buildFeaturedCategories(),
-          _buildBannerSection(),
+          // _buildBannerSection(),
           _buildAllProductsSection(context),
         ],
       ),

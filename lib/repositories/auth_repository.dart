@@ -17,7 +17,7 @@ class AuthRepository {
     var post_body = jsonEncode({
       "email": "$email",
       "password": "$password",
-      "identity_matrix": AppConfig.purchase_code,
+     // "identity_matrix": AppConfig.purchase_code,
       "login_by": loginBy,
       "temp_user_id": temp_user_id.$
     });
@@ -133,8 +133,7 @@ class AuthRepository {
     return resendCodeResponseFromJson(response.body);
   }
 
-  Future<ConfirmCodeResponse> getConfirmCodeResponse(
-      String verification_code) async {
+  Future<ConfirmCodeResponse> getConfirmCodeResponse(String verification_code) async {
     var post_body = jsonEncode({"verification_code": "$verification_code"});
 
     String url = ("${AppConfig.BASE_URL}/auth/confirm_code");
@@ -146,9 +145,19 @@ class AuthRepository {
           "Authorization": "Bearer ${access_token.$}",
         },
         body: post_body);
+    print("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+    // اطبع استجابة الخادم هنا
+    print("Response Body: ${response.body}");
 
-    return confirmCodeResponseFromJson(response.body);
+    // حاول تحويل الاستجابة إلى JSON
+    try {
+      return confirmCodeResponseFromJson(response.body);
+    } catch (e) {
+      print("Error while parsing JSON: $e");
+      throw Exception("Failed to parse response");
+    }
   }
+
 
   Future<PasswordForgetResponse> getPasswordForgetResponse(
       String? email_or_phone, String send_code_by) async {

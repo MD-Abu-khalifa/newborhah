@@ -87,7 +87,7 @@ final SharedValue<bool> auction_addon_installed = SharedValue(
 
 // social login start
 final SharedValue<bool> allow_google_login = SharedValue(
-  value: true, // initial value
+  value: false, // initial value
   key: "allow_google_login", // disk storage key for shared_preferences
 );
 
@@ -101,7 +101,7 @@ final SharedValue<bool> allow_twitter_login = SharedValue(
   key: "allow_twitter_login", // disk storage key for shared_preferences
 );
 final SharedValue<bool> allow_apple_login = SharedValue(
-  value: true, // initial value
+  value: false, // initial value
   key: "allow_apple_login", // disk storage key for shared_preferences
 );
 // social login end

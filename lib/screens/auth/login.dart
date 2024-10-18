@@ -58,6 +58,15 @@ class _LoginState extends State<Login> {
     //on Splash Screen hide statusbar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom]);
+
+
+    // تفعيل تسجيل الدخول عبر جوجل عند بدء التطبيق
+    allow_google_login.$ = true;  // تعديل القيمة
+    allow_google_login.save();    // حفظ التغيير في shared_preferences
+    allow_apple_login.$ = true;  // تعديل القيمة
+    allow_apple_login.save();
+
+
     super.initState();
     fetch_country();
   }
@@ -152,7 +161,7 @@ class _LoginState extends State<Login> {
         // update device token
         if (fcmToken != null && is_logged_in.$) {
           var deviceTokenUpdateResponse =
-              await ProfileRepository().getDeviceTokenUpdateResponse(fcmToken);
+          await ProfileRepository().getDeviceTokenUpdateResponse(fcmToken);
         }
       }
 
@@ -164,9 +173,9 @@ class _LoginState extends State<Login> {
             (mail_verification_status.$ && _login_by == "phone")) {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return Otp(
-                // verify_by: _register_by,
-                // user_id: signupResponse.user_id,
-                );
+              // verify_by: _register_by,
+              // user_id: signupResponse.user_id,
+            );
           }));
         } else {
           context.push("/");
@@ -225,7 +234,7 @@ class _LoginState extends State<Login> {
       print(googleUser.toString());
 
       GoogleSignInAuthentication googleSignInAuthentication =
-          await googleUser.authentication;
+      await googleUser.authentication;
       String? accessToken = googleSignInAuthentication.accessToken;
 
       // print("displayName ${googleUser.displayName}");
@@ -376,144 +385,315 @@ class _LoginState extends State<Login> {
         "${AppLocalizations.of(context)!.login_to} " + AppConfig.app_name,
         buildBody(context, _screen_width));
   }
+
   Widget buildBody(BuildContext context, double _screen_width) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: _screen_width * 0.8, // تعديل العرض إلى 80%
-          padding: EdgeInsets.all(16.0), // إضافة بعض المسافات حول المحتوى
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey, width: 1), // إضافة حدود
-            borderRadius: BorderRadius.circular(12.0), // زوايا مستديرة
-          ),
+          width: _screen_width * (3 / 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
-                  "البريد الإلكتروني",
+                  _login_by == "email"
+                      ? AppLocalizations.of(context)!.email_ucf
+                      : AppLocalizations.of(context)!.login_screen_phone,
                   style: TextStyle(
-                      color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                      color: MyTheme.accent_color, fontWeight: FontWeight.w600),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: TextField(
-                  controller: _emailController,
-                  autofocus: false,
-                  decoration: InputDecoration(
-                    hintText: "مثال: borhah@gmail.com",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide(color: Colors.grey, width: 1),
-                    ),
+              if (_login_by == "email")
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        height: 36,
+                        child: TextField(
+                          controller: _emailController,
+                          autofocus: false,
+                          decoration: InputDecorations.buildInputDecoration_1(
+                              hint_text: "borhah@gmail.com"),
+                        ),
+                      ),
+                      otp_addon_installed.$
+                          ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _login_by = "phone";
+                          });
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!
+                              .or_login_with_a_phone,
+                          style: TextStyle(
+                              color: MyTheme.accent_color,
+                              fontStyle: FontStyle.italic,
+                              decoration: TextDecoration.underline),
+                        ),
+                      )
+                          : Container()
+                    ],
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        height: 36,
+                        child: CustomInternationalPhoneNumberInput(
+                          countries: countries_code,
+                          onInputChanged: (PhoneNumber number) {
+                            print(number.phoneNumber);
+                            setState(() {
+                              _phone = number.phoneNumber;
+                            });
+                          },
+                          onInputValidated: (bool value) {
+                            print(value);
+                          },
+                          selectorConfig: SelectorConfig(
+                            selectorType: PhoneInputSelectorType.DIALOG,
+                          ),
+                          ignoreBlank: false,
+                          autoValidateMode: AutovalidateMode.disabled,
+                          selectorTextStyle:
+                          TextStyle(color: MyTheme.font_grey),
+                          textStyle: TextStyle(color: MyTheme.font_grey),
+                          // initialValue: PhoneNumber(
+                          //     isoCode: countries_code[0].toString()),
+                          textFieldController: _phoneNumberController,
+                          formatInput: true,
+                          keyboardType: TextInputType.numberWithOptions(
+                              signed: true, decimal: true),
+                          inputDecoration:
+                          InputDecorations.buildInputDecoration_phone(
+                              hint_text: "01XXX XXX XXX"),
+                          onSaved: (PhoneNumber number) {
+                            print('On Saved: $number');
+                          },
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _login_by = "email";
+                          });
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!.or_login_with_an_email,
+                          style: TextStyle(
+                              color: MyTheme.accent_color,
+                              fontStyle: FontStyle.italic,
+                              decoration: TextDecoration.underline),
+                        ),
+                      )
+                    ],
                   ),
                 ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
-                  "كلمة المرور",
+                  AppLocalizations.of(context)!.password_ucf,
                   style: TextStyle(
-                      color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                      color: MyTheme.accent_color, fontWeight: FontWeight.w600),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                child: TextField(
-                  controller: _passwordController,
-                  autofocus: false,
-                  obscureText: true,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: "••••••••",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide(color: Colors.grey, width: 1),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      height: 36,
+                      child: TextField(
+                        controller: _passwordController,
+                        autofocus: false,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration: InputDecorations.buildInputDecoration_1(
+                            hint_text: "• • • • • • • •"),
+                      ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                              return PasswordForget();
+                            }));
+                      },
+                      child: Text(
+                        AppLocalizations.of(context)!
+                            .login_screen_forgot_password,
+                        style: TextStyle(
+                            color: MyTheme.accent_color,
+                            fontStyle: FontStyle.italic,
+                            decoration: TextDecoration.underline),
+                      ),
+                    )
+                  ],
                 ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return PasswordForget();
-                    }));
-                  },
-                  child: Text(
-                    "نسيت كلمة المرور؟",
-                    style: TextStyle(
-                        color: Colors.redAccent,
-                        fontStyle: FontStyle.italic,
-                        decoration: TextDecoration.underline),
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    onPressedLogin(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent, // لون الزر
+              Padding(
+                padding: const EdgeInsets.only(top: 30.0),
+                child: Container(
+                  height: 45,
+                  decoration: BoxDecoration(
+                      border:
+                      Border.all(color: MyTheme.textfield_grey, width: 1),
+                      borderRadius:
+                      const BorderRadius.all(Radius.circular(12.0))),
+                  child: Btn.minWidthFixHeight(
+                    minWidth: MediaQuery.of(context).size.width,
+                    height: 50,
+                    color: MyTheme.accent_color,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+                        borderRadius:
+                        const BorderRadius.all(Radius.circular(6.0))),
+                    child: Text(
+                      AppLocalizations.of(context)!.login_screen_log_in,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    onPressed: () {
+                      onPressedLogin(context);
+                    },
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0, bottom: 15),
+                child: Center(
+                    child: Text(
+                      AppLocalizations.of(context)!
+                          .login_screen_or_create_new_account,
+                      style: TextStyle(color: MyTheme.font_grey, fontSize: 12),
+                    )),
+              ),
+              Container(
+                height: 45,
+                child: Btn.minWidthFixHeight(
+                  minWidth: MediaQuery.of(context).size.width,
+                  height: 50,
+                  color: MyTheme.amber,
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                      const BorderRadius.all(Radius.circular(6.0))),
                   child: Text(
-                    "تسجيل الدخول",
+                    AppLocalizations.of(context)!.login_screen_sign_up,
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                        color: MyTheme.accent_color,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600),
                   ),
-                ),
-              ),
-              SizedBox(height: 15),
-              Center(
-                child: Text(
-                  "أو قم بإنشاء حساب جديد",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ),
-              SizedBox(height: 15),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return Registration();
-                    }));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return Registration();
+                        }));
                   },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blueAccent, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+              if (Platform.isIOS)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: SignInWithAppleButton(
+                    onPressed: () async {
+                      signInWithApple();
+                    },
                   ),
-                  child: Text(
-                    "إنشاء حساب جديد",
-                    style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                ),
+              Visibility(
+                visible: allow_google_login.$ || allow_facebook_login.$,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.login_screen_login_with,
+                        style: TextStyle(color: MyTheme.font_grey, fontSize: 12),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Center(
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Visibility(
+                          visible: allow_google_login.$,
+                          child: InkWell(
+                            onTap: () {
+                              onPressedGoogleLogin();
+                            },
+                            child: Container(
+                              width: 28,
+                              child: Image.asset("assets/google_logo.png"),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15.0),
+                          child: Visibility(
+                            visible: allow_facebook_login.$,
+                            child: InkWell(
+                              onTap: () {
+                                onPressedFacebookLogin();
+                              },
+                              child: Container(
+                                width: 28,
+                                child: Image.asset("assets/facebook_logo.png"),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (allow_twitter_login.$)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: InkWell(
+                              onTap: () {
+                                onPressedTwitterLogin();
+                              },
+                              child: Container(
+                                width: 28,
+                                child: Image.asset("assets/twitter_logo.png"),
+                              ),
+                            ),
+                          ),
+                        /* if (Platform.isIOS)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            // visible: true,
+                            child: A(
+                              onTap: () async {
+                                signInWithApple();
+                              },
+                              child: Container(
+                                width: 28,
+                                child: Image.asset("assets/apple_logo.png"),
+                              ),
+                            ),
+                          ),*/
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
+        )
       ],
     );
   }
-
 }
