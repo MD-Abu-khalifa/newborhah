@@ -232,7 +232,8 @@ class _ProductDetailsState extends State<ProductDetails>
     );
 
     //print("p&u:" + widget.slug.toString() + " | " + _user_id.toString());
-    _isInWishList = wishListCheckResponse.is_in_wishlist;
+    _isInWishList = wishListCheckResponse.is_in_wishlist ?? false;
+
     setState(() {});
   }
 

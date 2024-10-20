@@ -105,21 +105,22 @@ class _CheckoutState extends State<Checkout> {
       balance = widget.rechargeAmount.toString();
     }
     if (SystemConfig.systemCurrency != null) {
-      balance = _totalString!.replaceAll(SystemConfig.systemCurrency!.code!,
-          SystemConfig.systemCurrency!.symbol!);
+      balance = _totalString!.replaceAll(SystemConfig.systemCurrency!.code!, SystemConfig.systemCurrency!.symbol!);
     } else {
       balance = _totalString;
     }
-    if (widget.paymentFor == PaymentFor.OrderRePayment) {
-      balance = widget.rechargeAmount.toString();
-    }
+
+    // تنظيف السلسلة من أي رموز غير رقمية
+    balance = balance!.replaceAll(RegExp(r'[^\d.]'), '');
 
     setState(() {
-      _grandTotalValue = double.parse(balance!);
+      _grandTotalValue = double.tryParse(balance!) ?? 0.0;
     });
+
     print("balance: $balance");
     return balance!;
   }
+
 
   fetchAll() {
     fetchList();
@@ -141,7 +142,7 @@ class _CheckoutState extends State<Checkout> {
     String mode = '';
     setState(() {
       mode = widget.paymentFor != PaymentFor.Order &&
-              widget.paymentFor != PaymentFor.ManualPayment
+          widget.paymentFor != PaymentFor.ManualPayment
           ? "wallet"
           : "order";
     });
@@ -167,14 +168,21 @@ class _CheckoutState extends State<Checkout> {
       _taxString = cartSummaryResponse.tax;
       _shippingCostString = cartSummaryResponse.shipping_cost;
       _discountString = cartSummaryResponse.discount;
-      _totalString = cartSummaryResponse.grand_total;
-      _grandTotalValue = cartSummaryResponse.grand_total_value;
+
+      // إزالة رموز العملة أو أي نصوص غير رقمية من grand_total قبل تحويلها إلى double
+      String grandTotalCleaned = cartSummaryResponse.grand_total?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0.0";
+      _grandTotalValue = double.tryParse(grandTotalCleaned) ?? 0.0;
+
+      _totalString = cartSummaryResponse.grand_total; // الاحتفاظ بالنص الأصلي لعرضه
+
       _used_coupon_code = cartSummaryResponse.coupon_code ?? _used_coupon_code;
       _couponController.text = _used_coupon_code;
       _coupon_applied = cartSummaryResponse.coupon_applied;
+
       setState(() {});
     }
   }
+
 
   reset() {
     _paymentTypeList.clear();
@@ -221,7 +229,7 @@ class _CheckoutState extends State<Checkout> {
     }
 
     var couponApplyResponse =
-        await CouponRepository().getCouponApplyResponse(coupon_code);
+    await CouponRepository().getCouponApplyResponse(coupon_code);
     if (couponApplyResponse.result == false) {
       ToastComponent.showDialog(
         couponApplyResponse.message,
@@ -235,7 +243,7 @@ class _CheckoutState extends State<Checkout> {
 
   onCouponRemove() async {
     var couponRemoveResponse =
-        await CouponRepository().getCouponRemoveResponse();
+    await CouponRepository().getCouponRemoveResponse();
 
     if (couponRemoveResponse.result == false) {
       ToastComponent.showDialog(
@@ -270,8 +278,8 @@ class _CheckoutState extends State<Checkout> {
         // then it goes to guest check address page
         Navigator.pushAndRemoveUntil(OneContext().context!,
             MaterialPageRoute(builder: (context) {
-          return GuestCheckoutAddress();
-        }), (Route<dynamic> route) => true);
+              return GuestCheckoutAddress();
+            }), (Route<dynamic> route) => true);
       }
       return;
     }
@@ -498,7 +506,7 @@ class _CheckoutState extends State<Checkout> {
         return OfflineScreen(
           order_id: widget.order_id,
           paymentInstruction:
-              _paymentTypeList[_selected_payment_method_index].details,
+          _paymentTypeList[_selected_payment_method_index].details,
           offline_payment_id: _paymentTypeList[_selected_payment_method_index]
               .offline_payment_id,
           rechargeAmount: widget.rechargeAmount,
@@ -516,7 +524,7 @@ class _CheckoutState extends State<Checkout> {
   pay_by_wallet() async {
     var orderCreateResponse = await PaymentRepository()
         .getOrderCreateResponseFromWallet(
-            _selected_payment_method_key, _grandTotalValue);
+        _selected_payment_method_key, _grandTotalValue);
 
     if (orderCreateResponse.result == false) {
       ToastComponent.showDialog(
@@ -585,7 +593,7 @@ class _CheckoutState extends State<Checkout> {
       context: context,
       builder: (_) => AlertDialog(
         contentPadding:
-            EdgeInsets.only(top: 16.0, left: 2.0, right: 2.0, bottom: 2.0),
+        EdgeInsets.only(top: 16.0, left: 2.0, right: 2.0, bottom: 2.0),
         content: Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 16.0),
           child: Container(
@@ -611,8 +619,8 @@ class _CheckoutState extends State<Checkout> {
                         Text(
                           SystemConfig.systemCurrency != null
                               ? _subTotalString!.replaceAll(
-                                  SystemConfig.systemCurrency!.code!,
-                                  SystemConfig.systemCurrency!.symbol!)
+                              SystemConfig.systemCurrency!.code!,
+                              SystemConfig.systemCurrency!.symbol!)
                               : _subTotalString!,
                           style: TextStyle(
                               color: MyTheme.font_grey,
@@ -640,8 +648,8 @@ class _CheckoutState extends State<Checkout> {
                         Text(
                           SystemConfig.systemCurrency != null
                               ? _taxString!.replaceAll(
-                                  SystemConfig.systemCurrency!.code!,
-                                  SystemConfig.systemCurrency!.symbol!)
+                              SystemConfig.systemCurrency!.code!,
+                              SystemConfig.systemCurrency!.symbol!)
                               : _taxString!,
                           style: TextStyle(
                               color: MyTheme.font_grey,
@@ -670,8 +678,8 @@ class _CheckoutState extends State<Checkout> {
                         Text(
                           SystemConfig.systemCurrency != null
                               ? _shippingCostString!.replaceAll(
-                                  SystemConfig.systemCurrency!.code!,
-                                  SystemConfig.systemCurrency!.symbol!)
+                              SystemConfig.systemCurrency!.code!,
+                              SystemConfig.systemCurrency!.symbol!)
                               : _shippingCostString!,
                           style: TextStyle(
                               color: MyTheme.font_grey,
@@ -699,8 +707,8 @@ class _CheckoutState extends State<Checkout> {
                         Text(
                           SystemConfig.systemCurrency != null
                               ? _discountString!.replaceAll(
-                                  SystemConfig.systemCurrency!.code!,
-                                  SystemConfig.systemCurrency!.symbol!)
+                              SystemConfig.systemCurrency!.code!,
+                              SystemConfig.systemCurrency!.symbol!)
                               : _discountString!,
                           style: TextStyle(
                               color: MyTheme.font_grey,
@@ -730,8 +738,8 @@ class _CheckoutState extends State<Checkout> {
                         Text(
                           SystemConfig.systemCurrency != null
                               ? _totalString!.replaceAll(
-                                  SystemConfig.systemCurrency!.code!,
-                                  SystemConfig.systemCurrency!.symbol!)
+                              SystemConfig.systemCurrency!.code!,
+                              SystemConfig.systemCurrency!.symbol!)
                               : _totalString!,
                           style: TextStyle(
                               color: MyTheme.accent_color,
@@ -763,7 +771,7 @@ class _CheckoutState extends State<Checkout> {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection:
-          app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
+      app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: buildAppBar(context),
@@ -801,33 +809,33 @@ class _CheckoutState extends State<Checkout> {
             Align(
               alignment: Alignment.bottomCenter,
               child: widget.paymentFor == PaymentFor.WalletRecharge ||
-                      widget.paymentFor == PaymentFor.PackagePay
+                  widget.paymentFor == PaymentFor.PackagePay
                   ? SizedBox.shrink()
                   : Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
-                      height: (widget.paymentFor == PaymentFor.ManualPayment) ||
-                              (widget.paymentFor == PaymentFor.OrderRePayment)
-                          ? 80
-                          : 140,
-                      //color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            widget.paymentFor == PaymentFor.Order
-                                ? Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 16.0),
-                                    child: buildApplyCouponRow(context),
-                                  )
-                                : SizedBox.shrink(),
-                            grandTotalSection(),
-                          ],
-                        ),
-                      ),
-                    ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                height: (widget.paymentFor == PaymentFor.ManualPayment) ||
+                    (widget.paymentFor == PaymentFor.OrderRePayment)
+                    ? 80
+                    : 140,
+                //color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      widget.paymentFor == PaymentFor.Order
+                          ? Padding(
+                        padding:
+                        const EdgeInsets.only(bottom: 16.0),
+                        child: buildApplyCouponRow(context),
+                      )
+                          : SizedBox.shrink(),
+                      grandTotalSection(),
+                    ],
+                  ),
+                ),
+              ),
             )
           ],
         ),
@@ -848,27 +856,27 @@ class _CheckoutState extends State<Checkout> {
             decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.enter_coupon_code,
                 hintStyle:
-                    TextStyle(fontSize: 14.0, color: MyTheme.textfield_grey),
+                TextStyle(fontSize: 14.0, color: MyTheme.textfield_grey),
                 enabledBorder: app_language_rtl.$!
                     ? OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: MyTheme.textfield_grey, width: 0.5),
-                        borderRadius: const BorderRadius.only(
-                          topRight: const Radius.circular(8.0),
-                          bottomRight: const Radius.circular(8.0),
-                        ),
-                      )
+                  borderSide: BorderSide(
+                      color: MyTheme.textfield_grey, width: 0.5),
+                  borderRadius: const BorderRadius.only(
+                    topRight: const Radius.circular(8.0),
+                    bottomRight: const Radius.circular(8.0),
+                  ),
+                )
                     : OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: MyTheme.textfield_grey, width: 0.5),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: const Radius.circular(8.0),
-                          bottomLeft: const Radius.circular(8.0),
-                        ),
-                      ),
+                  borderSide: BorderSide(
+                      color: MyTheme.textfield_grey, width: 0.5),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: const Radius.circular(8.0),
+                    bottomLeft: const Radius.circular(8.0),
+                  ),
+                ),
                 focusedBorder: OutlineInputBorder(
                   borderSide:
-                      BorderSide(color: MyTheme.medium_grey, width: 0.5),
+                  BorderSide(color: MyTheme.medium_grey, width: 0.5),
                   borderRadius: const BorderRadius.only(
                     topLeft: const Radius.circular(8.0),
                     bottomLeft: const Radius.circular(8.0),
@@ -879,57 +887,57 @@ class _CheckoutState extends State<Checkout> {
         ),
         !_coupon_applied!
             ? Container(
-                width: (MediaQuery.of(context).size.width - 32) * (1 / 3),
-                height: 42,
-                child: Btn.basic(
-                  minWidth: MediaQuery.of(context).size.width,
-                  color: MyTheme.accent_color,
-                  shape: app_language_rtl.$!
-                      ? RoundedRectangleBorder(
-                          borderRadius: const BorderRadius.only(
-                          topLeft: const Radius.circular(8.0),
-                          bottomLeft: const Radius.circular(8.0),
-                        ))
-                      : RoundedRectangleBorder(
-                          borderRadius: const BorderRadius.only(
-                          topRight: const Radius.circular(8.0),
-                          bottomRight: const Radius.circular(8.0),
-                        )),
-                  child: Text(
-                    AppLocalizations.of(context)!.apply_coupon_all_capital,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  onPressed: () {
-                    onCouponApply();
-                  },
-                ),
-              )
+          width: (MediaQuery.of(context).size.width - 32) * (1 / 3),
+          height: 42,
+          child: Btn.basic(
+            minWidth: MediaQuery.of(context).size.width,
+            color: MyTheme.accent_color,
+            shape: app_language_rtl.$!
+                ? RoundedRectangleBorder(
+                borderRadius: const BorderRadius.only(
+                  topLeft: const Radius.circular(8.0),
+                  bottomLeft: const Radius.circular(8.0),
+                ))
+                : RoundedRectangleBorder(
+                borderRadius: const BorderRadius.only(
+                  topRight: const Radius.circular(8.0),
+                  bottomRight: const Radius.circular(8.0),
+                )),
+            child: Text(
+              AppLocalizations.of(context)!.apply_coupon_all_capital,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600),
+            ),
+            onPressed: () {
+              onCouponApply();
+            },
+          ),
+        )
             : Container(
-                width: (MediaQuery.of(context).size.width - 32) * (1 / 3),
-                height: 42,
-                child: Btn.basic(
-                  minWidth: MediaQuery.of(context).size.width,
-                  color: MyTheme.accent_color,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: const BorderRadius.only(
-                    topRight: const Radius.circular(8.0),
-                    bottomRight: const Radius.circular(8.0),
-                  )),
-                  child: Text(
-                    AppLocalizations.of(context)!.remove_ucf,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  onPressed: () {
-                    onCouponRemove();
-                  },
-                ),
-              )
+          width: (MediaQuery.of(context).size.width - 32) * (1 / 3),
+          height: 42,
+          child: Btn.basic(
+            minWidth: MediaQuery.of(context).size.width,
+            color: MyTheme.accent_color,
+            shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.only(
+                  topRight: const Radius.circular(8.0),
+                  bottomRight: const Radius.circular(8.0),
+                )),
+            child: Text(
+              AppLocalizations.of(context)!.remove_ucf,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600),
+            ),
+            onPressed: () {
+              onCouponRemove();
+            },
+          ),
+        )
       ],
     );
   }
@@ -983,9 +991,9 @@ class _CheckoutState extends State<Checkout> {
           height: 100,
           child: Center(
               child: Text(
-            AppLocalizations.of(context)!.no_payment_method_is_added,
-            style: TextStyle(color: MyTheme.font_grey),
-          )));
+                AppLocalizations.of(context)!.no_payment_method_is_added,
+                style: TextStyle(color: MyTheme.font_grey),
+              )));
     }
   }
 
@@ -1001,11 +1009,11 @@ class _CheckoutState extends State<Checkout> {
             decoration: BoxDecorations.buildBoxDecoration_1().copyWith(
                 border: Border.all(
                     color: _selected_payment_method_key ==
-                            _paymentTypeList[index].payment_type_key
+                        _paymentTypeList[index].payment_type_key
                         ? MyTheme.accent_color
                         : MyTheme.light_grey,
                     width: _selected_payment_method_key ==
-                            _paymentTypeList[index].payment_type_key
+                        _paymentTypeList[index].payment_type_key
                         ? 2.0
                         : 0.0)),
             child: Row(
@@ -1017,14 +1025,14 @@ class _CheckoutState extends State<Checkout> {
                       child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child:
-                              /*Image.asset(
+                          /*Image.asset(
                           _paymentTypeList[index].image,
                           fit: BoxFit.fitWidth,
                         ),*/
-                              FadeInImage.assetNetwork(
+                          FadeInImage.assetNetwork(
                             placeholder: 'assets/placeholder.png',
                             image: _paymentTypeList[index].payment_type ==
-                                    "manual_payment"
+                                "manual_payment"
                                 ? _paymentTypeList[index].image
                                 : _paymentTypeList[index].image,
                             fit: BoxFit.fitWidth,
@@ -1086,35 +1094,36 @@ class _CheckoutState extends State<Checkout> {
     return BottomAppBar(
       child: Container(
         color: Colors.transparent,
-        height: 50,
+        height: 60,  // يمكنك زيادة الارتفاع قليلاً ليبدو أكثر راحة
+        padding: EdgeInsets.symmetric(vertical: 4), // إضافة بعض الهوامش
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,  // استخدام "center" لتكون الأزرار متناسقة
           children: [
             Btn.minWidthFixHeight(
-              minWidth: MediaQuery.of(context).size.width,
+              minWidth: MediaQuery.of(context).size.width * 0.9,  // تصغير الزر قليلاً لترك مساحة حوله
               height: 50,
               color: MyTheme.accent_color,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0.0),
+                borderRadius: BorderRadius.circular(8.0),  // إضافة بعض الاستدارة للزر لتنعيم الحواف
               ),
               child: Text(
                 widget.paymentFor == PaymentFor.WalletRecharge
                     ? AppLocalizations.of(context)!.recharge_wallet_ucf
                     : widget.paymentFor == PaymentFor.ManualPayment
-                        ? AppLocalizations.of(context)!.proceed_all_caps
-                        : widget.paymentFor == PaymentFor.PackagePay
-                            ? AppLocalizations.of(context)!.buy_package_ucf
-                            : AppLocalizations.of(context)!
-                                .place_my_order_all_capital,
+                    ? AppLocalizations.of(context)!.proceed_all_caps
+                    : widget.paymentFor == PaymentFor.PackagePay
+                    ? AppLocalizations.of(context)!.buy_package_ucf
+                    : AppLocalizations.of(context)!.place_my_order_all_capital,
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               onPressed: () {
                 onPressPlaceOrderOrProceed();
               },
-            )
+            ),
           ],
         ),
       ),
@@ -1181,14 +1190,14 @@ class _CheckoutState extends State<Checkout> {
         loadingcontext = context;
         return AlertDialog(
             content: Row(
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(
-              width: 10,
-            ),
-            Text("${AppLocalizations.of(context)!.please_wait_ucf}"),
-          ],
-        ));
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(
+                  width: 10,
+                ),
+                Text("${AppLocalizations.of(context)!.please_wait_ucf}"),
+              ],
+            ));
       },
     );
   }

@@ -1085,7 +1085,7 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
 
-  buildOrderDetailsTopCard() {
+  Container buildOrderDetailsTopCard() {
     return Container(
       decoration: BoxDecorations.buildBoxDecoration_1(),
       child: Padding(
@@ -1204,8 +1204,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                       ),
                     ),
                   ),
-                  buildPaymentStatusCheckContainer(
-                      _orderDetails!.payment_status),
+                  buildPaymentStatusCheckContainer(_orderDetails!.payment_status),
                   Spacer(),
                   Text(
                     _orderDetails!.delivery_status_string!,
@@ -1243,98 +1242,87 @@ class _OrderDetailsState extends State<OrderDetails> {
                 children: [
                   _orderDetails!.shipping_address != null
                       ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _orderDetails!.shipping_address!.name != null
-                                ? Text(
-                                    "${AppLocalizations.of(context)!.name_ucf}: ${_orderDetails!.shipping_address!.name}",
-                                    maxLines: 3,
-                                    style: TextStyle(
-                                      color: MyTheme.grey_153,
-                                    ),
-                                  )
-                                : Container(),
-                            _orderDetails!.shipping_address!.email != null
-                                ? Text(
-                                    "${AppLocalizations.of(context)!.email_ucf}: ${_orderDetails!.shipping_address!.email}",
-                                    maxLines: 3,
-                                    style: TextStyle(
-                                      color: MyTheme.grey_153,
-                                    ),
-                                  )
-                                : Container(),
-                            Text(
-                              "${AppLocalizations.of(context)!.address_ucf}: ${_orderDetails!.shipping_address!.address}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.city_ucf}: ${_orderDetails!.shipping_address!.city}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.country_ucf}: ${_orderDetails!.shipping_address!.country}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.state_ucf}: ${_orderDetails!.shipping_address!.state}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.phone_ucf}: ${_orderDetails!.shipping_address!.phone ?? ''}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.postal_code}: ${_orderDetails!.shipping_address!.postal_code ?? ''}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _orderDetails!.pickupPoint!.name != null
-                                ? Text(
-                                    "${AppLocalizations.of(context)!.name_ucf}: ${_orderDetails!.pickupPoint!.name}",
-                                    maxLines: 3,
-                                    style: TextStyle(
-                                      color: MyTheme.grey_153,
-                                    ),
-                                  )
-                                : Container(),
-                            Text(
-                              "${AppLocalizations.of(context)!.address_ucf}: ${_orderDetails!.pickupPoint!.address}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                            Text(
-                              "${AppLocalizations.of(context)!.phone_ucf}: ${_orderDetails!.pickupPoint!.phone}",
-                              maxLines: 3,
-                              style: TextStyle(
-                                color: MyTheme.grey_153,
-                              ),
-                            ),
-                          ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _orderDetails!.shipping_address!.name != null
+                          ? Text(
+                        "${AppLocalizations.of(context)!.name_ucf}: ${_orderDetails!.shipping_address!.name}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
                         ),
+                      )
+                          : Container(),
+                      _orderDetails!.shipping_address!.email != null
+                          ? Text(
+                        "${AppLocalizations.of(context)!.email_ucf}: ${_orderDetails!.shipping_address!.email}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      )
+                          : Container(),
+                      Text(
+                        "${AppLocalizations.of(context)!.address_ucf}: ${_orderDetails!.shipping_address!.address}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.city_ucf}: ${_orderDetails!.shipping_address!.city}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.country_ucf}: ${_orderDetails!.shipping_address!.country}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.state_ucf}: ${_orderDetails!.shipping_address!.state}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.phone_ucf}: ${_orderDetails!.shipping_address!.phone ?? ''}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.postal_code}: ${_orderDetails!.shipping_address!.postal_code ?? ''}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                    ],
+                  )
+                      : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _orderDetails!.pickupPoint!.name != null
+                          ? Text(
+                        "${AppLocalizations.of(context)!.name_ucf}: ${_orderDetails!.pickupPoint!.name}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      )
+                          : Container(),
+                      Text(
+                        "${AppLocalizations.of(context)!.address_ucf}: ${_orderDetails!.pickupPoint!.address}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.phone_ucf}: ${_orderDetails!.pickupPoint!.phone}",
+                        style: TextStyle(
+                          color: MyTheme.grey_153,
+                        ),
+                      ),
+                    ],
+                  ),
                   Spacer(),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1351,47 +1339,42 @@ class _OrderDetailsState extends State<OrderDetails> {
                         height: 8,
                       ),
                       Btn.basic(
-                          // shape: RoundedRectangleBorder(side: Border()),
-
-                          minWidth: 60,
-                          // color: MyTheme.font_grey,
-                          onPressed: () {
-                            _onPressReorder(_orderDetails!.id);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: MyTheme.light_grey)),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.refresh,
-                                  color: MyTheme.grey_153,
-                                  size: 16,
-                                ),
-                                Text(
-                                  LangText(context).local.re_order_ucf,
-                                  style: TextStyle(
-                                      color: MyTheme.grey_153, fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          )),
+                        minWidth: 60,
+                        onPressed: () {
+                          _onPressReorder(_orderDetails!.id);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: MyTheme.light_grey)),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.refresh,
+                                color: MyTheme.grey_153,
+                                size: 16,
+                              ),
+                              Text(
+                                LangText(context).local.re_order_ucf,
+                                style: TextStyle(
+                                    color: MyTheme.grey_153, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       SizedBox(
                         height: 8,
                       ),
                       Btn.basic(
-                        // shape: RoundedRectangleBorder(side: Border()),
-
                         minWidth: 60,
-                        // color: MyTheme.font_grey,
                         onPressed: () {
                           _downloadInvoice(_orderDetails!.id);
                         },
                         child: Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: MyTheme.medium_grey)),
@@ -1419,39 +1402,41 @@ class _OrderDetailsState extends State<OrderDetails> {
             if (_orderDetails!.delivery_status == "pending" &&
                 _orderDetails!.payment_status == "unpaid")
               Btn.basic(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  minWidth: DeviceInfo(context).width,
-                  color: MyTheme.font_grey,
-                  onPressed: () {
-                    _showCancelDialog(_orderDetails!.id);
-                  },
-                  child: Text(
-                    LangText(context).local.cancel_order_ucf,
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  )),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                padding: EdgeInsets.symmetric(vertical: 10),
+                minWidth: DeviceInfo(context).width,
+                color: MyTheme.font_grey,
+                onPressed: () {
+                  _showCancelDialog(_orderDetails!.id); // تمرير معرف الطلب
+                },
+                child: Text(
+                  LangText(context).local.cancel_order_ucf,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
             if (_orderDetails!.delivery_status == "pending" &&
                 _orderDetails!.payment_status == "unpaid")
               Btn.basic(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  minWidth: DeviceInfo(context).width,
-                  color: MyTheme.accent_color,
-                  onPressed: () {
-                    // _showCancelDialog(_orderDetails!.id);
-                    _make_re_payment(_orderDetails!.grand_total);
-                  },
-                  child: Text(
-                    LangText(context).local.make_payment_ucf,
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  )),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                padding: EdgeInsets.symmetric(vertical: 10),
+                minWidth: DeviceInfo(context).width,
+                color: MyTheme.accent_color,
+                onPressed: () {
+                  _make_re_payment(_orderDetails!.grand_total);
+                },
+                child: Text(
+                  LangText(context).local.make_payment_ucf,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+
 
   buildOrderedProductItemsCard(index) {
     return Container(

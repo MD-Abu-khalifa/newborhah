@@ -9,6 +9,7 @@ import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../custom/cart_seller_item_list_widget.dart';
 import '../../presenter/cart_provider.dart';
@@ -29,6 +30,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
+  final String whatsappNumber = "+967778821618"; // ضع رقم الواتساب هنا
   @override
   void initState() {
     // TODO: implement initState
@@ -43,7 +45,7 @@ class _CartState extends State<Cart> {
     return Consumer<CartProvider>(builder: (context, cartProvider, _) {
       return Directionality(
         textDirection:
-            app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
+        app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
         child: Scaffold(
           key: cartProvider.scaffoldKey,
           backgroundColor: Colors.white,
@@ -79,7 +81,9 @@ class _CartState extends State<Cart> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: buildBottomContainer(cartProvider),
-              )
+              ),
+              // إضافة زر المشاركة عبر واتساب
+
             ],
           ),
         ),
@@ -92,9 +96,7 @@ class _CartState extends State<Cart> {
       decoration: BoxDecoration(
         color: Colors.white,
       ),
-
-      height: widget.has_bottomnav! ? 200 : 120,
-      //color: Colors.white,
+      height: widget.has_bottomnav! ? 250 : 240, // قم بزيادة الارتفاع لاستيعاب الزر الإضافي
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4),
         child: Column(
@@ -103,8 +105,9 @@ class _CartState extends State<Cart> {
               height: 40,
               width: double.infinity,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.0),
-                  color: MyTheme.soft_accent_color),
+                borderRadius: BorderRadius.circular(6.0),
+                color: MyTheme.soft_accent_color,
+              ),
               child: Row(
                 children: [
                   Padding(
@@ -112,19 +115,23 @@ class _CartState extends State<Cart> {
                     child: Text(
                       AppLocalizations.of(context)!.total_amount_ucf,
                       style: TextStyle(
-                          color: MyTheme.dark_font_grey,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700),
+                        color: MyTheme.dark_font_grey,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(cartProvider.cartTotalString,
-                        style: TextStyle(
-                            color: MyTheme.accent_color,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600)),
+                    child: Text(
+                      cartProvider.cartTotalString,
+                      style: TextStyle(
+                        color: MyTheme.accent_color,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -136,50 +143,24 @@ class _CartState extends State<Cart> {
                   child: Container(
                     height: 58,
                     width: (MediaQuery.of(context).size.width - 48),
-                    // width: (MediaQuery.of(context).size.width - 48) * (2 / 3),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: MyTheme.accent_color, width: 1),
-                      borderRadius: app_language_rtl.$!
-                          ? const BorderRadius.only(
-                              topLeft: const Radius.circular(6.0),
-                              bottomLeft: const Radius.circular(6.0),
-                              topRight: const Radius.circular(6.0),
-                              bottomRight: const Radius.circular(6.0),
-                            )
-                          : const BorderRadius.only(
-                              topLeft: const Radius.circular(6.0),
-                              bottomLeft: const Radius.circular(6.0),
-                              topRight: const Radius.circular(6.0),
-                              bottomRight: const Radius.circular(6.0),
-                            ),
+                      borderRadius: BorderRadius.circular(6.0),
                     ),
                     child: Btn.basic(
                       minWidth: MediaQuery.of(context).size.width,
                       color: MyTheme.accent_color,
-                      shape: app_language_rtl.$!
-                          ? RoundedRectangleBorder(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: const Radius.circular(6.0),
-                                bottomLeft: const Radius.circular(6.0),
-                                topRight: const Radius.circular(0.0),
-                                bottomRight: const Radius.circular(0.0),
-                              ),
-                            )
-                          : RoundedRectangleBorder(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: const Radius.circular(0.0),
-                                bottomLeft: const Radius.circular(0.0),
-                                topRight: const Radius.circular(6.0),
-                                bottomRight: const Radius.circular(6.0),
-                              ),
-                            ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
                       child: Text(
                         AppLocalizations.of(context)!.proceed_to_shipping_ucf,
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700),
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       onPressed: () {
                         cartProvider.onPressProceedToShipping(context);
@@ -188,12 +169,48 @@ class _CartState extends State<Cart> {
                   ),
                 ),
               ],
-            )
+            ),
+            // زر "مواصلة الشراء عبر واتساب"
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    height: 58,
+                    width: (MediaQuery.of(context).size.width - 48),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.green, width: 1),
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    child: Btn.basic(
+                      minWidth: MediaQuery.of(context).size.width,
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Text(
+                        "مواصلة الشراء عبر واتساب",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      onPressed: () {
+                        _shareCartOnWhatsApp(cartProvider); // استدعاء دالة المشاركة عبر واتساب
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
@@ -228,6 +245,33 @@ class _CartState extends State<Cart> {
           child: ShimmerHelper()
               .buildListShimmer(item_count: 5, item_height: 100.0));
     } else if (cartProvider.shopList.length > 0) {
+
+
+// تحقق من وجود بائعين في عربة التسوق
+      // تحقق من وجود بائعين في عربة التسوق
+      // تحقق من وجود بائعين في عربة التسوق
+      if (cartProvider.shopList.length > 0) {
+        for (var shop in cartProvider.shopList) {
+          print("Shop Name: ${shop.name}");
+
+          if (shop.cartItems != null && shop.cartItems.isNotEmpty) {
+            for (var item in shop.cartItems) {
+              print("Product Name: ${item.productName}");
+              print("Product Price: ${item.price}");
+
+              print("Product Quantity: ${item.quantity}");
+            }
+          } else {
+            print("No products in this shop.");
+          }
+        }
+      } else {
+        print("No shops in the cart.");
+      }
+
+
+
+
       return SingleChildScrollView(
         child: ListView.separated(
           separatorBuilder: (context, index) => SizedBox(
@@ -271,6 +315,7 @@ class _CartState extends State<Cart> {
                   cartProvider: cartProvider,
                   context: context,
                 ),
+
               ],
             );
           },
@@ -286,4 +331,49 @@ class _CartState extends State<Cart> {
           )));
     }
   }
+
+
+  void _shareCartOnWhatsApp(CartProvider cartProvider) async {
+    String message = '';
+    double totalPrice = 0.0;
+
+    // تجميع بيانات المنتجات
+    for (var shop in cartProvider.shopList) {
+     // message += "اسم المتجر: ${shop.name}\n";
+      for (var item in shop.cartItems) {
+
+
+        // تحويل السعر إلى double إذا كان String
+
+        double itemPrice = double.tryParse(item.price.replaceAll(RegExp(r'[^\d.]'), '').toString()) ?? 0.0;
+       // double price=itemPrice/item.quantity;
+        double price = itemPrice / (item.quantity ?? 1);
+        // إضافة المعلومات باللغة العربية مع رابط المنتج باستخدام slug
+        message += "اسم المنتج: ${item.productName}\n";
+        message += "السعر: ${price.toStringAsFixed(2)} ريال\n"; // سيتم عرض السعر مع رقمين عشريين
+        message += "الكمية: ${item.quantity}\n";
+       // message += "رابط المنتج: https://borhah.com/product/${item.slug}\n"; // تأكد من وجود slug الصحيح في البيانات
+        message += "--------------------------\n"; // فاصل بين كل منتج
+        totalPrice += itemPrice;//itemPrice * item.quantity; // حساب السعر الإجمالي بشكل صحيح
+      }
+    
+    }
+
+    // إضافة السعر الكلي في نهاية الرسالة
+    message += "السعر الإجمالي: $totalPrice ريال\n";
+
+    // استبدال رقم واتساب الفعلي هنا
+    final String whatsappNumber = "+967778821618"; // أدخل رقم واتساب الفعلي
+
+    // إنشاء رابط الواتساب
+    final String whatsappUrl = "https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}";
+
+    // التحقق من إمكانية فتح الرابط
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl); // فتح الرابط في تطبيق واتساب
+    } else {
+      print("لا يمكن فتح تطبيق واتساب");
+    }
+  }
+
 }
