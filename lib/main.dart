@@ -53,7 +53,7 @@ import 'lang_config.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
-    debug: true, // Optional: set to false to disable printing logs to console
+    debug: false, // Optional: set to false to disable printing logs to console
     ignoreSsl:
         true, // Optional: set to false to disable working with HTTP links
   );
